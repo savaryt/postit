@@ -1,0 +1,102 @@
+@import '~@angular/material/theming';
+@import '../../theme.scss';
+
+.cdk-drag-preview {
+  @include mat-elevation(16);
+  background: map-get(mat-palette($mat-pink), 500);
+  transition: all 100ms;
+  border-radius: 0;
+  opacity: 50%;
+
+  .mat-expansion-panel-content-wrapper {
+    min-height: 200px;
+  }
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+:host {
+  display: block;
+  height: 100%;
+  background: map-get(map-get($theme, 'background'), 'background');
+
+  mat-drawer {
+    width: 300px;
+
+    mat-form-field {
+      width: 100%;
+      padding: 0 1em;
+    }
+
+    button[mat-button] {
+      width: calc(100% - 2em);
+      margin: 0 1em;
+    }
+  }
+
+  mat-drawer-content {
+    overflow: hidden;
+
+    .wrapper {
+      height: 100vh;
+
+      section {
+
+        .drop-zone {
+          overflow-y: auto;
+          width: 100%;
+          height: calc(100% - 88px);
+
+          &.todo {
+            mat-expansion-panel {
+              background: map-get(mat-palette($mat-orange), 500);
+
+              .mat-expansion-panel-content-wrapper {
+                min-height: 131px;
+              }
+            }
+          }
+
+          &.progress {
+            mat-expansion-panel {
+              background: map-get(mat-palette($mat-blue), 500);
+
+              .mat-expansion-panel-content-wrapper {
+                min-height: 152px;
+              }
+            }
+
+            mat-slider {
+              width: 100%;
+            }
+          }
+
+          &.done {
+            mat-expansion-panel {
+              background: map-get(mat-palette($mat-green), 500);
+
+              .mat-expansion-panel-content-wrapper {
+                min-height: 152px;
+              }
+
+              mat-progress-bar {
+                margin: 24px 0 24px 0;
+              }
+            }
+          }
+
+          mat-expansion-panel {
+            margin: 1em 1em 0 1em;
+            @include mat-elevation(4);
+            width: 100%;
+            border-radius: 0;
+
+
+          }
+        }
+      }
+    }
+  }
+}

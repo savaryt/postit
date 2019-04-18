@@ -1,0 +1,27 @@
+@import '~@angular/material/theming';
+@include mat-core();
+$primary: mat-palette($mat-grey, 700, 500, 900);
+$accent: mat-palette($mat-grey, 700, 500, 900);
+$warn: mat-palette($mat-red);
+$theme: mat-dark-theme($primary, $accent, $warn);
+@include angular-material-theme($theme);
+$typography: mat-typography-config($font-family: 'Roboto Mono, monospace');
+@include angular-material-typography($typography);
+
+::-webkit-scrollbar-thumb {
+  background: map-get(map-get($theme, foreground), secondary-text);
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar {
+  background: map-get(map-get($theme, background), card);
+  width: 6px;
+
+  &:hover {
+    width: 12px;
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

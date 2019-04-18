@@ -1,0 +1,199 @@
+<mat-drawer-container class="example-container">
+  <mat-drawer mode="side"
+              opened
+              class="drawer">
+    <mat-selection-list #assigneeList
+                        (selectionChange)="onSelection($event, assigneeList.selectedOptions.selected)">
+      <h3 mat-subheader>Assignees</h3>
+      <mat-form-field>
+        <input matInput
+               [(ngModel)]="assigneeSearchString"
+               placeholder="Filter by assignee"
+               type="text"
+               autocomplete="off">
+      </mat-form-field>
+      <ng-container *ngFor="let assignee of assignees">
+        <ng-container *ngIf="filterByAssignee(assignee)">
+          <mat-list-option [value]="assignee"
+                           selected="isActive(assignee)">
+            <mat-icon mat-list-icon>face</mat-icon>
+            <p mat-line>{{assignee}} </p>
+          </mat-list-option>
+        </ng-container>
+      </ng-container>
+      <mat-divider></mat-divider>
+
+      <h3 mat-subheader>Task</h3>
+      <mat-form-field>
+        <input matInput
+               [(ngModel)]="taskSearchString"
+               placeholder="Filter by task"
+               type="text"
+               autocomplete="off">
+      </mat-form-field>
+      <h3 mat-subheader>Add task</h3>
+
+      <form [formGroup]="form"
+            (ngSubmit)="addTask()">
+        <mat-form-field>
+          <input matInput
+                 formControlName="task"
+                 placeholder="Task"
+                 type="text"
+                 autocomplete="off">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-select formControlName="assignee"
+                      placeholder="Assignee">
+            <mat-option value="Thibault">Thibault</mat-option>
+            <mat-option value="Stephane">Stephane</mat-option>
+            <mat-option value="Audrey">Audrey</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <textarea matInput
+                    formControlName="details"
+                    matTextareaAutosize
+                    minRows="5"
+                    placeholder="Details"></textarea>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput
+                 formControlName="duration"
+                 placeholder="Duration"
+                 type="number"
+                 autocomplete="off">
+        </mat-form-field>
+        <button mat-button
+                type="submit">ADD</button>
+      </form>
+      <mat-divider></mat-divider>
+    </mat-selection-list>
+
+  </mat-drawer>
+  <mat-drawer-content>
+
+    <div fxLayout="column"
+         fxLayout.gt-sm="row"
+         class="wrapper">
+      <section [ngStyle.gt-sm]="{ width: '33vw'}"
+               [ngStyle.sm]="{height: '33vh'}">
+        <h2>Todo</h2>
+        <div class="drop-zone todo"
+             fxLayout="row wrap"
+             fxLayoutAlign="start start"
+             [ngClass.xs]="xs"
+             [ngClass.gt-sm]="xs"
+             cdkDropList
+             #todoList="cdkDropList"
+             [cdkDropListData]="todo"
+             [cdkDropListConnectedTo]="[doneList, progressList]"
+             (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let item of todo">
+            <ng-container>
+              <mat-expansion-panel cdkDrag
+                                   [style.visibility]="isActive(item.assignee) && filterByTask(item.task) ? 'visible' : 'hidden'"
+                                   [style.height]="isActive(item.assignee) && filterByTask(item.task) ? 'auto' : '0px'"
+                                   [style.margin]="isActive(item.assignee) && filterByTask(item.task) ? '16px 16px 0 16px' : '0'">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{item.task}}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{item.assignee}} - {{item.duration | duration}}
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="mat-expansion-panel-content-wrapper">
+                  {{item.details}}
+                </div>
+                <mat-action-row>
+                  <button mat-button
+                          (click)="removeTask(item)">Remove</button>
+                </mat-action-row>
+              </mat-expansion-panel>
+
+            </ng-container>
+          </ng-container>
+        </div>
+      </section>
+
+      <section [ngStyle.gt-sm]="{ width: '33vw'}"
+               [ngStyle.sm]="{height: '33vh'}">
+        <h2>In progress</h2>
+        <div class="drop-zone progress"
+             fxLayout="row wrap"
+             fxLayoutAlign="start start"
+             cdkDropList
+             #progressList="cdkDropList"
+             [cdkDropListData]="progress"
+             [cdkDropListConnectedTo]="[todoList, doneList]"
+             (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let item of progress">
+            <ng-container>
+              <mat-expansion-panel cdkDrag
+                                   [style.visibility]="isActive(item.assignee) && filterByTask(item.task) ? 'visible' : 'hidden'"
+                                   [style.height]="isActive(item.assignee) && filterByTask(item.task) ? 'auto' : '0px'"
+                                   [style.margin]="isActive(item.assignee) && filterByTask(item.task) ? '16px 16px 0 16px' : '0'">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{item.task}}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{item.assignee}} - {{item.duration | duration}}
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="mat-expansion-panel-content-wrapper">
+                  {{item.details}}
+                </div>
+                <mat-slider min="0"
+                            [max]="item.duration"
+                            step="0.5"
+                            thumbLabel
+                            [(value)]="item.progress"></mat-slider>
+              </mat-expansion-panel>
+            </ng-container>
+          </ng-container>
+        </div>
+      </section>
+
+      <section [ngStyle.gt-sm]="{ width: '33vw'}"
+               [ngStyle.sm]="{height: '33vh'}">
+        <h2>Done</h2>
+        <div class="drop-zone done"
+             fxLayout="row wrap"
+             fxLayoutAlign="start start"
+             cdkDropList
+             #doneList="cdkDropList"
+             [cdkDropListData]="done"
+             [cdkDropListConnectedTo]="[todoList, progressList]"
+             (cdkDropListDropped)="drop($event)">
+          <ng-container *ngFor="let item of done">
+            <ng-container>
+              <mat-expansion-panel cdkDrag
+                                   [style.visibility]="isActive(item.assignee) && filterByTask(item.task) ? 'visible' : 'hidden'"
+                                   [style.height]="isActive(item.assignee) && filterByTask(item.task) ? 'auto' : '0px'"
+                                   [style.margin]="isActive(item.assignee) && filterByTask(item.task) ? '16px 16px 0 16px' : '0'">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{item.task}}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{item.assignee}} - {{item.duration | duration}}
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="mat-expansion-panel-content-wrapper">
+                  {{item.details}}
+                </div>
+                <mat-progress-bar mode="determinate"
+                                  [value]="item.progress / item.duration * 100"></mat-progress-bar>
+              </mat-expansion-panel>
+            </ng-container>
+          </ng-container>
+        </div>
+      </section>
+
+    </div>
+
+  </mat-drawer-content>
+</mat-drawer-container>
